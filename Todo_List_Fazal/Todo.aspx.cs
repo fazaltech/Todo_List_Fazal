@@ -179,6 +179,55 @@ namespace Todo_List_Fazal
 
 
         [WebMethod]
+        public static string Update_Order(int[] Order)
+        {
+
+            try
+            {
+                string connectionString = ConfigurationManager.ConnectionStrings["Todo_list"].ConnectionString;
+               
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    using (SqlCommand command = connection.CreateCommand())
+                    {
+                        using (SqlTransaction transaction = connection.BeginTransaction())
+                        {
+                            command.Transaction = transaction;
+
+                            try
+                            {
+                                for (int i = 0; i < Order.Length; i++)
+                                {
+                                    command.CommandText = "UPDATE ToDo_List_Fazal.[dbo].[Todo_Table] SET ItemPosition = @ItemPosition WHERE ListItemId = @ListItemId";
+                                    command.Parameters.Clear();
+                                    command.Parameters.AddWithValue("@ItemPosition", i );
+                                    command.Parameters.AddWithValue("@ListItemId", Order[i]);
+                                  
+                                    command.ExecuteNonQuery();
+                                }
+
+                                transaction.Commit();
+
+                                return "Tasks updated successfully.";
+                            }
+                            catch (Exception ex)
+                            {
+                                transaction.Rollback();
+                                return "Error updating tasks: " + ex.Message;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return "Error updating tasks: " + ex.Message;
+            }
+        }
+
+            [WebMethod]
         public static string Update_Des(int ListItemId,string Description)
         {
             string connectionString = ConfigurationManager.ConnectionStrings["Todo_list"].ConnectionString; 

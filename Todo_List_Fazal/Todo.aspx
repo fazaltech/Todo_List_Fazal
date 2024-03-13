@@ -41,15 +41,18 @@
                 
                  var ul = $('#list');
 
+                 data.sort(function (a, b) {
+                     return a.ItemPosition - b.ItemPosition;
+                 });
                  
                  $.each(data, function (item) {
                      var li;
                      if ($(this)[0].IsDone == 1) {
-                         li = $('<li color="1" class="colorBlue" rel="5" id=' + $(this)[0].ListItemId + '>').html('<s> <span id="10listitem" title="Double-click to edit..." ondblclick="EditD<a href="favicon.ico">favicon.ico</a>es(' + $(this)[0].ListItemId + ')">' + $(this)[0].Description + '</span></s><div class="draggable-tab"><div class="draggertab tab" onclick="Dragged()"></div><div class="colortab tab"></div><div  data-item-id="' + $(this)[0].ListItemId + '" ondblclick="Deletebtn(' + $(this)[0].ListItemId + ')" class="deletetab tab item"></div> <div  onclick="UpdateTask(' + $(this)[0].ListItemId + ')" class="donetab tab"></div></div></li>');
+                         li = $('<li color="1" class="colorBlue" rel="5" id=' + $(this)[0].ListItemId + '>').html('<s> <span id="10listitem" title="Double-click to edit..." ondblclick="EditD<a href="favicon.ico">favicon.ico</a>es(' + $(this)[0].ListItemId + ')">' + $(this)[0].Description + '</span></s><div class=""><div class="draggertab tab" onclick="InitSortable(this)"></div><div class="colortab tab"></div><div  data-item-id="' + $(this)[0].ListItemId + '" ondblclick="Deletebtn(' + $(this)[0].ListItemId + ')" class="deletetab tab item"></div> <div  onclick="UpdateTask(' + $(this)[0].ListItemId + ')" class="donetab tab"></div></div></li>');
                      }
                      else
                      {
-                         li = $('<li color="1" class="colorBlue" rel="5" id=' + $(this)[0].ListItemId + '>').html(' <span id="10listitem" title="Double-click to edit..." ondblclick="EditDes(' + $(this)[0].ListItemId + ')">' + $(this)[0].Description + '</span><div class="draggable-tab"><div class="draggertab tab" onclick="Dragged()"></div><div class="colortab tab"></div><div  data-item-id="' + $(this)[0].ListItemId + '" ondblclick="Deletebtn(' + $(this)[0].ListItemId + ')" class="deletetab tab item"></div> <div  onclick="UpdateTask(' + $(this)[0].ListItemId + ')" class="donetab tab"></div></div></li>');
+                         li = $('<li color="1" class="colorBlue" rel="5" id=' + $(this)[0].ListItemId + '>').html(' <span id="10listitem" title="Double-click to edit..." ondblclick="EditDes(' + $(this)[0].ListItemId + ')">' + $(this)[0].Description + '</span><div class=""><div class="draggertab tab"  onclick="InitSortable(this)"></div><div class="colortab tab"></div><div  data-item-id="' + $(this)[0].ListItemId + '" ondblclick="Deletebtn(' + $(this)[0].ListItemId + ')" class="deletetab tab item"></div> <div  onclick="UpdateTask(' + $(this)[0].ListItemId + ')" class="donetab tab"></div></div></li>');
                      }
 
                      
@@ -164,6 +167,9 @@
              var saveButton = $('<button onclick="saveText(' + itemId + ')">Save</button>');
              inputElement.after(saveButton);
          }
+    
+
+
 
          function saveText(itemId) {
              var inputElement = $('#' + itemId + ' input');
@@ -196,12 +202,38 @@
              });
          }
 
+         function InitSortable(button) {
+             $('#list').sortable({
+                     update: function (event, ui) {
+                         var order = $('#list').sortable("toArray");
+
+                         // Send AJAX request to update order
+                         $.ajax({
+                             type: "POST",
+                             url: "Todo.aspx/Update_Order",
+                             data: JSON.stringify({ Order: order }),
+                             contentType: "application/json; charset=utf-8",
+                             dataType: "json",
+                             success: function (response) {
+                                 console.log("Order updated successfully");
+                             },
+                             error: function (xhr, status, error) {
+                                 console.log("Error updating order: " + error);
+                             }
+                         });
+                     }
+                 });
+             
+         }
+
+
          $(function () {
+            
              // Make the entire list item draggable
-             $(".draggable-tab").draggable({
+           /*  $(".draggable-tab").draggable({
                  handle: "#dragged_div",
                  // Add additional options as needed
-             });
+             });*/
          });
 
      </script>
@@ -215,8 +247,8 @@
 
     <div id="main">
       <noscript>This site just doesn't work, period, without JavaScript</noscript>
-
-      <ul id="list" class="ui-sortable">
+      <div style="display:flex; justify-content:center; align-content:center "><h1>Todo App</h1></div>
+      <ul id="list" class="ui-sortable" style="margin-top:30px">
         <%--<li color="1" class="colorBlue" rel="1" id="2">
           <span id="2listitem" title="Double-click to edit..." style="opacity: 1;">Work
           List</span>
@@ -311,7 +343,7 @@
     <input type="text" id="new-list-item-text" name="new-list-item-text" />
         <%--   <asp:TextBox ID="TextBox1" runat="server"></asp:TextBox>--%>
 
-    <button  id="add-new-submit"  class="button" onclick="Postbtn()" >Add</button>
+    <button  id="add-new-submit"  class="button" onclick="Postbtn()" style="background-color:orange; color:white; font-weight:700; height:41px;" >Add</button>
       <%--<asp:Button ID="Add_Button" runat="server" class="button" Text="Add" OnClick="Add_Button_Click" />--%>
   </form>
 
